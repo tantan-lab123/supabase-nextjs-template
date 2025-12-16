@@ -12,7 +12,7 @@ export default function DashboardContent() {
     if (!loading && mounted) {
       // Use setTimeout to push navigation to the next tick
       setTimeout(() => {
-        router.replace("/app/user-settings");
+        router.replace("/app/panel");
       }, 0);
     }
     return () => {

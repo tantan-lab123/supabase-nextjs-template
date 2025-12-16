@@ -2,7 +2,15 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { User, Menu, X, ChevronDown, LogOut, Key } from "lucide-react";
+import {
+  User,
+  Menu,
+  X,
+  ChevronDown,
+  LogOut,
+  Key,
+  LayoutDashboard,
+} from "lucide-react";
 import { useGlobal } from "@/lib/context/GlobalContext";
 import { createSPASassClient } from "@/lib/supabase/client";
 
@@ -36,6 +44,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const productName = "LeadAlert";
 
   const navigation = [
+    { name: "פאנל ניהול", href: "/app/panel", icon: LayoutDashboard },
     { name: "הגדרות משתמש", href: "/app/user-settings", icon: User },
   ];
 

@@ -8,12 +8,35 @@ import SSOButtons from "@/components/SSOButtons";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const router = useRouter();
+
+  const formatPhoneNumber = (phoneNumber: string) => {
+    // Remove any whitespace
+    let cleanNumber = phoneNumber.replace(/\s+/g, "");
+
+    // Remove + from start
+    if (cleanNumber.startsWith("+")) {
+      cleanNumber = cleanNumber.substring(1);
+    }
+
+    // Replace leading 0 with 972
+    if (cleanNumber.startsWith("0")) {
+      cleanNumber = "972" + cleanNumber.substring(1);
+    }
+
+    // Append @c.us if not present
+    if (!cleanNumber.endsWith("@c.us")) {
+      cleanNumber = cleanNumber + "@c.us";
+    }
+
+    return cleanNumber;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,8 +55,13 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
+      const formattedPhone = formatPhoneNumber(phone);
       const supabase = await createSPASassClient();
-      const { error } = await supabase.registerEmail(email, password);
+      const { error } = await supabase.registerEmail(
+        email,
+        password,
+        formattedPhone
+      );
 
       if (error) throw error;
 
@@ -75,6 +103,29 @@ export default function RegisterPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-primary-500"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label
+            htmlFor="phone"
+            className="block text-sm font-medium text-gray-700"
+          >
+            מספר טלפון
+          </label>
+          <div className="mt-1">
+            <input
+              id="phone"
+              name="phone"
+              type="tel"
+              autoComplete="tel"
+              required
+              placeholder="0501234567"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-primary-500 text-left"
+              dir="ltr"
             />
           </div>
         </div>

@@ -30,3 +30,41 @@ create policy "Users can update their own customer settings"
 -- Grant access to the authenticated role
 grant select, insert, update, delete on customers to authenticated;
 grant usage on sequence customers_id_seq to authenticated;
+
+-- Function to handle new user creation
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  insert into public.customers (secret_token, chat_id)
+  values (
+    new.id::text,
+    new.raw_user_meta_data->>'phone'
+  )
+  on conflict (secret_token) do update
+  set chat_id = excluded.chat_id;
+  return new;
+end;
+$$;
+
+-- Trigger to call the function on new user creation
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();
+
+-- Function to delete user account
+create or replace function delete_user_account()
+returns void
+language plpgsql
+security definer
+as $$
+begin
+  delete from auth.users where id = auth.uid();
+end;
+$$;
+
+-- Grant execute permission to authenticated users
+grant execute on function delete_user_account() to authenticated;
