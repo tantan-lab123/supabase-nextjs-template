@@ -95,6 +95,14 @@ export class SassClient {
         return this.client.from('todo_list').update({done: true}).eq('id', id)
     }
 
+    async getCustomer(userId: string) {
+        return this.client.from('customers').select('*').eq('secret_token', userId).single();
+    }
+
+    async upsertCustomer(data: Database["public"]["Tables"]["customers"]["Insert"]) {
+        return this.client.from('customers').upsert(data, { onConflict: 'secret_token' });
+    }
+
     getSupabaseClient() {
         return this.client;
     }

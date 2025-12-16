@@ -100,7 +100,7 @@ export default function SSOButtons({ onError }: SSOButtonsProps) {
                     <div className="w-full border-t border-gray-300"/>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                    <span className="bg-white px-2 text-gray-500">Or continue with</span>
+                    <span className="bg-white px-2 text-gray-500">או המשך באמצעות</span>
                 </div>
             </div>
 
@@ -113,27 +113,28 @@ export default function SSOButtons({ onError }: SSOButtonsProps) {
                             onClick={() => handleSSOLogin(provider)}
                             className={`group relative flex h-11 items-center rounded-md border ${config.borderColor} px-6 transition-colors duration-200 ${config.bgColor} ${config.textColor}`}
                         >
-                            <div className="absolute left-6">
+                            <div className="absolute right-6">
                                 <div className="flex h-5 w-5 items-center justify-center">
                                     {config.icon}
                                 </div>
                             </div>
                             <span className="mx-auto text-sm font-semibold">
-                Continue with {config.name}
+                המשך עם {config.name}
               </span>
                         </button>
                     );
                 })}
             </div>
             <div className="mt-4 text-center text-xs text-gray-500">
-                By creating an account via selected provider, you agree to our{' '}
+                ביצירת חשבון דרך הספק הנבחר, אתה מסכים ל{' '}
                 <Link href="/legal/terms" className="text-blue-600 hover:text-blue-800 underline">
-                    Terms and Conditions
+                    תנאי השימוש
                 </Link>
-                {' '}and{' '}
+                {' '}ול{' '}
                 <Link href="/legal/privacy" className="text-blue-600 hover:text-blue-800 underline">
-                    Privacy Policy
+                    מדיניות הפרטיות
                 </Link>
+                {' '}שלנו
             </div>
         </div>
     );

@@ -13,8 +13,8 @@ const HomePricing = () => {
         <section id="pricing" className="py-24 bg-gray-100">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-12">
-                    <h2 className="text-3xl font-bold mb-4">Simple, Transparent Pricing</h2>
-                    <p className="text-gray-600 text-lg">Choose the plan that&#39;s right for your business (IT&#39;S PLACEHOLDER NO PRICING FOR THIS TEMPLATE)</p>
+                    <h2 className="text-3xl font-bold mb-4">מחירים פשוטים ושקופים</h2>
+                    <p className="text-gray-600 text-lg">בחר את התוכנית המתאימה לעסק שלך</p>
                 </div>
 
                 <div className="grid md:grid-cols-3 gap-8 mb-12">
@@ -26,8 +26,8 @@ const HomePricing = () => {
                             }`}
                         >
                             {tier.popular && (
-                                <div className="absolute top-0 right-0 -translate-y-1/2 px-3 py-1 bg-primary-500 text-white text-sm rounded-full">
-                                    Most Popular
+                                <div className="absolute top-0 left-0 -translate-y-1/2 px-3 py-1 bg-primary-500 text-white text-sm rounded-full">
+                                    הכי פופולרי
                                 </div>
                             )}
 
@@ -39,7 +39,7 @@ const HomePricing = () => {
                             <CardContent className="flex-grow flex flex-col">
                                 <div className="mb-6">
                                     <span className="text-4xl font-bold">{PricingService.formatPrice(tier.price)}</span>
-                                    <span className="text-gray-600 ml-2">/month</span>
+                                    <span className="text-gray-600 mr-2">/לחודש</span>
                                 </div>
 
                                 <ul className="space-y-3 mb-8 flex-grow">
@@ -59,7 +59,7 @@ const HomePricing = () => {
                                             : 'bg-gray-50 text-gray-900 hover:bg-gray-100'
                                     }`}
                                 >
-                                    Get Started
+                                    בחר תוכנית
                                 </Link>
                             </CardContent>
                         </Card>
@@ -68,7 +68,7 @@ const HomePricing = () => {
 
                 <div className="text-center">
                     <p className="text-gray-600">
-                        All plans include: {commonFeatures.join(', ')}
+                        כל התוכניות כוללות: {commonFeatures.join(', ')}
                     </p>
                 </div>
             </div>
