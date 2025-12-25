@@ -79,6 +79,8 @@ export type Database = {
           secret_token: string;
           chat_id: string | null;
           template: string | null;
+          is_first: boolean | null;
+          fields: string | null;
         };
         Insert: {
           id?: number;
@@ -86,6 +88,8 @@ export type Database = {
           secret_token: string;
           chat_id?: string | null;
           template?: string | null;
+          is_first?: boolean | null;
+          fields?: string | null;
         };
         Update: {
           id?: number;
@@ -93,6 +97,8 @@ export type Database = {
           secret_token?: string;
           chat_id?: string | null;
           template?: string | null;
+          is_first?: boolean | null;
+          fields?: string | null;
         };
         Relationships: [];
       };

@@ -4,6 +4,8 @@ create table if not exists customers (
   secret_token text unique not null,
   chat_id text,
   template text,
+  is_first boolean default true,
+  fields text,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
@@ -38,10 +40,11 @@ language plpgsql
 security definer set search_path = public
 as $$
 begin
-  insert into public.customers (secret_token, chat_id)
+  insert into public.customers (secret_token, chat_id, is_first)
   values (
     new.id::text,
-    new.raw_user_meta_data->>'phone'
+    new.raw_user_meta_data->>'phone',
+    true
   )
   on conflict (secret_token) do update
   set chat_id = excluded.chat_id;

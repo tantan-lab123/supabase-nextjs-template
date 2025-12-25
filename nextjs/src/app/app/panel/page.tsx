@@ -17,6 +17,7 @@ import {
   RotateCcw,
   Copy,
   LayoutDashboard,
+  Code,
 } from "lucide-react";
 
 export default function PanelPage() {
@@ -28,11 +29,55 @@ export default function PanelPage() {
   const [template, setTemplate] = useState(DEFAULT_TEMPLATE);
   const [notificationLoading, setNotificationLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [availableFields, setAvailableFields] = useState<string>("");
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const insertVariable = (variable: string) => {
+    const textarea = document.getElementById("template") as HTMLTextAreaElement;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const textToInsert = `{{${variable}}}`;
+    const newValue =
+      template.substring(0, start) + textToInsert + template.substring(end);
+
+    setTemplate(newValue);
+
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(
+        start + textToInsert.length,
+        start + textToInsert.length
+      );
+    }, 0);
+  };
+
+  const handleDragStart = (e: React.DragEvent, variable: string) => {
+    e.dataTransfer.setData("text/plain", `{{${variable}}}`);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const text = e.dataTransfer.getData("text/plain");
+    const textarea = e.currentTarget as HTMLTextAreaElement;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const newValue =
+      template.substring(0, start) + text + template.substring(end);
+
+    setTemplate(newValue);
+
+    setTimeout(() => {
+      textarea.focus();
+      textarea.setSelectionRange(start + text.length, start + text.length);
+    }, 0);
   };
 
   React.useEffect(() => {
@@ -54,6 +99,9 @@ export default function PanelPage() {
             setTemplate(data.template);
           } else {
             setTemplate(DEFAULT_TEMPLATE);
+          }
+          if (data.fields) {
+            setAvailableFields(data.fields);
           }
         } else {
           // If no record exists yet, ensure we start with the default
@@ -150,6 +198,119 @@ export default function PanelPage() {
       )}
 
       <div className="grid gap-6 lg:grid-cols-2">
+        {/* Right Column: Notification/Message Settings */}
+        <div className="space-y-6">
+          <Card className="h-fit">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Phone className="h-5 w-5" />
+                הגדרות התראות
+              </CardTitle>
+              <CardDescription>הגדר היכן ואיך תקבל את ההתראות</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form
+                onSubmit={handleNotificationSettingsUpdate}
+                className="space-y-4"
+              >
+                <div>
+                  <label
+                    htmlFor="phone"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    מספר וואטסאפ לקבלת התראות
+                  </label>
+                  <div className="relative mt-1">
+                    <input
+                      type="tel"
+                      id="phone"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="0500000000"
+                      className="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-primary-500 text-sm text-right"
+                      dir="ltr"
+                      required
+                    />
+                  </div>
+                  <p className="mt-1 text-xs text-gray-500">
+                    הזן את המספר אליו יישלחו הלידים (לדוגמה: 0501234567)
+                  </p>
+                </div>
+
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <label
+                      htmlFor="template"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      תבנית הודעה
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setTemplate(DEFAULT_TEMPLATE)}
+                      className="text-xs text-primary-600 hover:text-primary-500 flex items-center gap-1"
+                      title="שחזר ברירת מחדל"
+                    >
+                      <RotateCcw className="h-3 w-3" />
+                      שחזר ברירת מחדל
+                    </button>
+                  </div>
+                  <div className="mt-1 relative">
+                    <textarea
+                      id="template"
+                      value={template}
+                      onChange={(e) => setTemplate(e.target.value)}
+                      onDrop={handleDrop}
+                      onDragOver={(e) => e.preventDefault()}
+                      rows={6}
+                      className="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-primary-500 text-sm"
+                      dir="rtl"
+                      required
+                    />
+                    <MessageSquare className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  </div>
+                  <div className="mt-4">
+                    <label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
+                      <Code className="h-4 w-4" />
+                      משתנים זמינים לשימוש
+                    </label>
+                    <div className="flex flex-wrap gap-2" dir="ltr">
+                      {(availableFields
+                        ? availableFields.split(",")
+                        : ["name", "tel"]
+                      ).map((field) => (
+                        <div
+                          key={field}
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, field.trim())}
+                          onClick={() => insertVariable(field.trim())}
+                          className="bg-primary-50 text-primary-700 px-3 py-1.5 rounded-md text-sm font-mono cursor-grab active:cursor-grabbing hover:bg-primary-100 transition-colors border border-primary-200 select-none"
+                          title="גרור לתיבת הטקסט או לחץ להוספה"
+                        >
+                          {field.trim()}
+                        </div>
+                      ))}
+                    </div>
+                    <p className="mt-2 text-xs text-gray-500">
+                      גרור את המשתנים לתיבת הטקסט או לחץ עליהם להוספה מהירה.
+                      <br />
+                      ניתן להוסיף אימוג&apos;ים וטקסט חופשי.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={notificationLoading}
+                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+                >
+                  {notificationLoading ? "שומר..." : "שמור הגדרות"}
+                </button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Left Column: Webhook Settings */}
         <Card className="h-fit">
           <CardHeader>
@@ -202,92 +363,6 @@ export default function PanelPage() {
                 וואטסאפ למספר שהגדרת.
               </p>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Right Column: Notification/Message Settings */}
-        <Card className="h-fit">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Phone className="h-5 w-5" />
-              הגדרות התראות
-            </CardTitle>
-            <CardDescription>הגדר היכן ואיך תקבל את ההתראות</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form
-              onSubmit={handleNotificationSettingsUpdate}
-              className="space-y-4"
-            >
-              <div>
-                <label
-                  htmlFor="phone"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  מספר וואטסאפ לקבלת התראות
-                </label>
-                <div className="relative mt-1">
-                  <input
-                    type="tel"
-                    id="phone"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="0500000000"
-                    className="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-primary-500 text-sm text-right"
-                    dir="ltr"
-                    required
-                  />
-                </div>
-                <p className="mt-1 text-xs text-gray-500">
-                  הזן את המספר אליו יישלחו הלידים (לדוגמה: 0501234567)
-                </p>
-              </div>
-
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <label
-                    htmlFor="template"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    תבנית הודעה
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setTemplate(DEFAULT_TEMPLATE)}
-                    className="text-xs text-primary-600 hover:text-primary-500 flex items-center gap-1"
-                    title="שחזר ברירת מחדל"
-                  >
-                    <RotateCcw className="h-3 w-3" />
-                    שחזר ברירת מחדל
-                  </button>
-                </div>
-                <div className="mt-1 relative">
-                  <textarea
-                    id="template"
-                    value={template}
-                    onChange={(e) => setTemplate(e.target.value)}
-                    rows={6}
-                    className="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-primary-500 text-sm"
-                    dir="rtl"
-                    required
-                  />
-                  <MessageSquare className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                </div>
-                <p className="mt-1 text-xs text-gray-500">
-                  משתנים זמינים לשימוש: {"{{name}}"}, {"{{tel}}"}
-                  <br />
-                  ניתן להוסיף אימוג&apos;ים וטקסט חופשי.
-                </p>
-              </div>
-
-              <button
-                type="submit"
-                disabled={notificationLoading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
-              >
-                {notificationLoading ? "שומר..." : "שמור הגדרות"}
-              </button>
-            </form>
           </CardContent>
         </Card>
       </div>
