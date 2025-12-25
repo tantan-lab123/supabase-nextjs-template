@@ -276,8 +276,8 @@ export default function PanelPage() {
                     </label>
                     <div className="flex flex-wrap gap-2" dir="ltr">
                       {(availableFields
-                        ? availableFields.split(",")
-                        : ["name", "tel"]
+                        ? availableFields.split(/[\n,]+/)
+                        : ["Name", "Phone Number"]
                       ).map((field) => (
                         <div
                           key={field}
